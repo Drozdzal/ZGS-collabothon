@@ -1,7 +1,9 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
+from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 import base64
+import json
 
 
 # Define the Pydantic schema for raw text output
@@ -24,16 +26,17 @@ def encode_image(image_path: str) -> str:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 
-def extract_text_from_image(image_path: str) -> RawTextOutput:
+@tool
+def extract_text_from_image(image_path: str) -> str:
     """
-    Extract all text from payment-related images (checks, bills, invoices).
+    Extract all text from payment-related images (checks, bills, invoices, receipts).
+    Use this tool when you need to read text from an image file containing payment documents.
 
     Args:
-        image_path: Path to the image file
-        api_key: OpenAI API key
+        image_path: Path to the image file (jpg, png, etc.)
 
     Returns:
-        RawTextOutput object with extracted text
+        JSON string with raw_text field containing all extracted text from the image
     """
     # Initialize the LLM with vision capabilities
     llm = ChatOpenAI(
@@ -79,30 +82,31 @@ Return ALL text exactly as it appears in the document. Don't summarize, don't sk
 
     # Execute and return result
     result = structured_llm.invoke([message])
-    return result
+
+    # Return as JSON string for agent compatibility
+    return result.model_dump_json()
 
 
 # Example usage
 if __name__ == "__main__":
-
-
     # Path to your local image
     image_path = r"C:\MasterThesis\ZGS-collabothon\zgs_backend\src\zgs_backend\rachuneczek.png"
 
     try:
-        # Extract text from image
-        result = extract_text_from_image(image_path)
+        # Extract text from image using the tool
+        result_json = extract_text_from_image.invoke({"image_path": image_path})
+        result = json.loads(result_json)
 
         print("=" * 50)
         print("EXTRACTED TEXT FROM IMAGE")
         print("=" * 50)
-        print(result.raw_text)
+        print(result['raw_text'])
 
-        # Convert to JSON
+        # JSON Output
         print("\n" + "=" * 50)
         print("JSON OUTPUT")
         print("=" * 50)
-        print(result.model_dump_json(indent=2))
+        print(result_json)
 
     except FileNotFoundError:
         print(f"Error: Image file not found at {image_path}")

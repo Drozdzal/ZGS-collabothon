@@ -1,8 +1,10 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
+import json
 
 
 # Define the Pydantic schema for payment information
@@ -16,16 +18,18 @@ class PaymentInfo(BaseModel):
     schedule: str = Field(description="When to send payment in ISO format (YYYY-MM-DD) or 'immediate'")
 
 
-def parse_bill_text(raw_text: str) -> PaymentInfo:
+@tool
+def parse_bill_text(raw_text: str) -> str:
     """
     Parse bill text and extract payment information with scheduling.
+    Use this tool when you have raw text from a bill/invoice and need to extract
+    structured payment details (receiver, address, title, amount, bank account, schedule).
 
     Args:
         raw_text: Raw text extracted from bill/invoice image
-        api_key: OpenAI API key
 
     Returns:
-        PaymentInfo object with extracted payment details
+        JSON string with payment information
     """
     # Initialize the LLM
     llm = ChatOpenAI(
@@ -60,32 +64,44 @@ Be precise and extract exact values from the text."""),
 
     # Execute and return result
     result = chain.invoke({"text": raw_text})
-    return result
 
-# Additional helper function to format payment message
-def format_payment_message(payment_info: PaymentInfo) -> dict:
+    # Return as JSON string for agent compatibility
+    return result.model_dump_json()
+
+
+@tool
+def format_payment_message(payment_data: str) -> str:
     """
-    Format payment info into a structured JSON message.
+    Format payment information into a final structured JSON message ready for transfer.
+    Use this tool when you have payment info and need to create the final payment message
+    with additional metadata (status, timestamp, currency).
 
     Args:
-        payment_info: PaymentInfo object
+        payment_data: JSON string with payment information
 
     Returns:
-        Dictionary with formatted payment message
+        Formatted JSON payment message with all details and metadata
     """
-    return {
+    # Parse the input payment data
+    payment_dict = json.loads(payment_data)
+
+    # Create structured payment message
+    payment_message = {
         "payment_request": {
-            "receiver": payment_info.receiver,
-            "address": payment_info.address,
-            "title": payment_info.title,
-            "amount": payment_info.amount,
+            "receiver": payment_dict.get("receiver"),
+            "address": payment_dict.get("address"),
+            "title": payment_dict.get("title"),
+            "amount": payment_dict.get("amount"),
             "currency": "PLN",
-            "bank_account": payment_info.bank_account,
-            "schedule": payment_info.schedule,
+            "bank_account": payment_dict.get("bank_account"),
+            "schedule": payment_dict.get("schedule"),
             "status": "pending",
             "created_at": datetime.now().isoformat()
         }
     }
+
+    return json.dumps(payment_message, indent=2, ensure_ascii=False)
+
 
 # Example usage
 if __name__ == "__main__":
@@ -127,37 +143,32 @@ if __name__ == "__main__":
         print(f"{'=' * 70}")
 
         try:
-            result = parse_bill_text(bill_text)
+            # Parse bill text using the tool
+            result_json = parse_bill_text.invoke({"raw_text": bill_text})
+            result = json.loads(result_json)
         except Exception as e:
             print(str(e))
-            raise(e)
+            raise (e)
 
         print("=" * 50)
         print("EXTRACTED PAYMENT INFORMATION")
         print("=" * 50)
-        print(f"Receiver: {result.receiver}")
-        print(f"Address: {result.address}")
-        print(f"Title: {result.title}")
-        print(f"Amount: {result.amount} PLN")
-        print(f"Bank Account: {result.bank_account}")
-        print(f"Schedule: {result.schedule}")
+        print(f"Receiver: {result['receiver']}")
+        print(f"Address: {result['address']}")
+        print(f"Title: {result['title']}")
+        print(f"Amount: {result['amount']} PLN")
+        print(f"Bank Account: {result['bank_account']}")
+        print(f"Schedule: {result['schedule']}")
 
         # Convert to JSON
         print("\n" + "=" * 50)
         print("JSON OUTPUT")
         print("=" * 50)
-        print(result.model_dump_json(indent=2))
+        print(result_json)
 
-        # Example JSON message format
+        # Format payment message using the tool
         print("\n" + "=" * 50)
         print("PAYMENT MESSAGE")
         print("=" * 50)
-        payment_message = format_payment_message(result)
-        import json
-
-        print(json.dumps(payment_message, indent=2, ensure_ascii=False))
-
-
-
-
-
+        payment_message = format_payment_message.invoke({"payment_data": result_json})
+        print(payment_message)
