@@ -16,7 +16,7 @@ if __name__ == "__main__":
             r.adjust_for_ambient_noise(source)
             log.log(logging.INFO, msg="Started recording")
             phrase = r.listen(source=source, timeout=5, phrase_time_limit=20)
-            transcription = r.recognize_whisper(phrase, language="english")
+            transcription = r.recognize_whisper(phrase, model="large", language="polish")
 
     except sr.WaitTimeoutError:
         log.log(level=logging.ERROR, msg=f"Recording timed out.")
