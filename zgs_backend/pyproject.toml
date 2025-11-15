@@ -1,0 +1,51 @@
+[project]
+name = "zgs-backend"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Drozdzal",email = "MaciejZieja@interia.pl"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+]
+
+[tool.poetry]
+packages = [{include = "zgs_backend", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+# --- Gemini API Client (latest official Google package) ---
+google-genai = "^0.8.0"
+
+# --- Core LangChain ---
+langchain = "^0.3.0"
+langchain-core = "^0.3.0"
+langchain-community = "^0.3.0"
+
+langchain-openai = "^0.2.0"
+langchain-google-genai = "^2.0.0"
+
+# Optional but highly recommended:
+pydantic = "^2.7"          # For tool schemas
+python-dotenv = "^1.0"     # For API key loading
+tenacity = "^8.2"          # Retry/backoff for API stability
+requests = "^2.32"         # HTTP utilities
+
+# Vectorstores & embedding helpers (optional but common for tool workflows)
+faiss-cpu = "^1.9.0"
+sentence-transformers = "^3.0.0"
+
+# --- If you want LLM function-calling style tools ---
+jsonschema = "^4.22"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.0"
+ruff = "^0.6.0"
+pytest = "^8.0"
+isort = "^5.13"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
