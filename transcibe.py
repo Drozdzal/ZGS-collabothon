@@ -42,7 +42,6 @@ def record_audio(duration: int) -> bytes:
             channels=CHANNELS,
             dtype="float32",
         )
-        print(recording)
         sd.wait()  # Wait until recording is finished
     except Exception as e:
         print(f"Error while recording audio: {e}")
@@ -63,7 +62,6 @@ def record_audio(duration: int) -> bytes:
             print(f"Error while reading WAV file: {e}")
             return None
 
-        print(audio_bytes)
     return audio_bytes
 
 

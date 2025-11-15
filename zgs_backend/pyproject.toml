@@ -23,7 +23,7 @@ google-genai = "^0.8.0"
 langchain = "^0.3.0"
 langchain-core = "^0.3.0"
 langchain-community = "^0.3.0"
-
+flask="^3.1.2"
 langchain-openai = "^0.2.0"
 langchain-google-genai = "^2.0.0"
 
@@ -39,6 +39,15 @@ sentence-transformers = "^3.0.0"
 
 # --- If you want LLM function-calling style tools ---
 jsonschema = "^4.22"
+PyAudio = "*"
+soundfile = "*"
+SpeechRecognition = "*"
+sounddevice = "*"
+openai = "*"
+pydub = "*"
+numpy = "*"
+gtts = "*"
+playsound = { git = "https://github.com/taconi/playsound" }
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.0"

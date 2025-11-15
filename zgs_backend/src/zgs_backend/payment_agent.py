@@ -4,9 +4,9 @@ from typing import Dict, Any, List
 import os
 
 # Import all tools
-from image_to_text import extract_text_from_image
-from scheduled_payment_tool import parse_bill_text, format_payment_message
-from converter_tool import extract_transfer_info
+from .image_to_text import extract_text_from_image
+from .scheduled_payment_tool import parse_bill_text, format_payment_message
+from .converter_tool import extract_transfer_info
 
 
 class PaymentProcessingAgent:
@@ -224,7 +224,7 @@ if __name__ == "__main__":
     print("=" * 70)
 
     result1 = agent.process_request(
-        r"Extract payment information from the bill image at 'C:\MasterThesis\ZGS-collabothon\zgs_backend\src\zgs_backend\rachuneczek.png' and give me the formatted payment details"
+        r"Extract payment information from the bill image at 'C:\Users\Mateusz\Desktop\ZGS-collabothon\zgs_backend\src\zgs_backend\rachuneczek.png' and give me the formatted payment details"
     )
 
     if result1['success']:
