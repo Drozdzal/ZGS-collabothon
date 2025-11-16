@@ -1,5 +1,5 @@
-
-# Bank ATM 2.0 – Accessible Voice‑Enabled ATM Simulator
+# VAB - Voice Assisted Banking
+TEAM : ZGS
 
 This project is a **full ATM simulator** with a modern UI, voice assistance, document payment scan, contact book and support for standard transfers, instant payments, mini statements and standing orders.  
 It is based on the original Figma design (`Banking ATM UI Design`) and extends it with a Python backend and AI‑powered voice features.
